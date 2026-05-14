@@ -1,0 +1,27 @@
+# Dependencies
+node_modules/
+
+# Playwright
+playwright-report/
+test-results/
+blob-report/
+playwright/.cache/
+
+# Visual regression snapshots (generated)
+tests/visual/*.png
+tests/visual/**/*.png
+
+# Environment
+.env
+.env.local
+
+# Build
+dist/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/
+.idea/
