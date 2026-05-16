@@ -60,4 +60,10 @@ export class ProductListPage extends BasePage {
   productCards(): Locator {
     return this.page.locator('[data-testid^="product-card-"]');
   }
+
+  async getFirstProductId(): Promise<number> {
+    const firstCard = this.productCards().first();
+    const testId = await firstCard.getAttribute('data-testid');
+    return Number(testId?.replace('product-card-', ''));
+  }
 }
