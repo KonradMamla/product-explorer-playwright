@@ -1,11 +1,15 @@
 import { Page, Locator } from '@playwright/test';
 import { BasePage } from './BasePage';
+import { API_ROUTES } from '../helpers/api.routes';
+import { TESTID_PREFIXES } from '../helpers/constants';
+import { PATTERNS } from '../helpers/patterns';
+import type { ProductsResponse } from '../src/types/product';
 
 export class ProductListPage extends BasePage {
   private readonly searchInput: Locator;
   private readonly categorySelect: Locator;
   private readonly loadingState: Locator;
-  private readonly resultsSummary: Locator;
+  readonly resultsSummary: Locator;
   private readonly clearFiltersButton: Locator;
   readonly favouritesCount: Locator;
   readonly favouritesPreview: Locator;
@@ -30,13 +34,13 @@ export class ProductListPage extends BasePage {
     await this.resultsSummary.waitFor({ state: 'visible' });
   }
 
-  async search(term: string): Promise<void> {
-    await this.searchInput.fill(term);
+  async search(searchQuery: string): Promise<void> {
+    await this.searchInput.fill(searchQuery);
     await this.waitForProductsLoaded();
   }
 
-  async selectCategory(slug: string): Promise<void> {
-    await this.categorySelect.selectOption(slug);
+  async selectCategory(category: string): Promise<void> {
+    await this.categorySelect.selectOption(category);
     await this.waitForProductsLoaded();
   }
 
@@ -45,25 +49,51 @@ export class ProductListPage extends BasePage {
     await this.waitForProductsLoaded();
   }
 
-  getProductCard(productId: number): Locator {
-    return this.page.getByTestId(`product-card-${productId}`);
-  }
-
   async showProductDetails(productId: number): Promise<void> {
-    await this.page.getByTestId(`show-details-${productId}`).click();
+    await this.page.getByTestId(`${TESTID_PREFIXES.SHOW_DETAILS}${productId}`).click();
   }
 
   async toggleFavourite(productId: number): Promise<void> {
-    await this.page.getByTestId(`toggle-favourite-${productId}`).click();
+    await this.page.getByTestId(`${TESTID_PREFIXES.TOGGLE_FAVOURITE}${productId}`).click();
   }
 
-  productCards(): Locator {
-    return this.page.locator('[data-testid^="product-card-"]');
+  allProductCards(): Locator {
+    return this.page.locator(`[data-testid^="${TESTID_PREFIXES.PRODUCT_CARD}"]`);
   }
 
   async getFirstProductId(): Promise<number> {
-    const firstCard = this.productCards().first();
+    const firstCard = this.allProductCards().first();
     const testId = await firstCard.getAttribute('data-testid');
-    return Number(testId?.replace('product-card-', ''));
+    return Number(testId?.replace(TESTID_PREFIXES.PRODUCT_CARD, ''));
+  }
+
+  async getFavouritesCount(): Promise<number> {
+    const text = await this.favouritesCount.textContent();
+    const match = text?.match(PATTERNS.FIRST_NUMBER);
+    return match ? Number(match[0]) : 0;
+  }
+
+  async searchAndWaitForResponse(searchQuery: string): Promise<ProductsResponse> {
+    const responsePromise = this.page.waitForResponse(
+      (response) => response.url().includes(API_ROUTES.productSearch) && response.status() === 200,
+    );
+
+    await this.search(searchQuery);
+
+    const response = await responsePromise;
+    return response.json();
+  }
+
+  async selectCategoryAndWaitForResponse(category: string): Promise<ProductsResponse> {
+    const responsePromise = this.page.waitForResponse(
+      (response) =>
+        response.url().includes(API_ROUTES.productsByCategory(category)) &&
+        response.status() === 200,
+    );
+
+    await this.selectCategory(category);
+
+    const response = await responsePromise;
+    return response.json();
   }
 }

@@ -23,3 +23,7 @@ export interface ProductCategory {
   name: string;
   url: string;
 }
+
+export type ProductPreview = Pick<Product, 'id' | 'title' | 'price' | 'category' | 'thumbnail'>;
+export type ProductDetails = Omit<Product, 'thumbnail'>;
+export type PartialProduct = Partial<Product>;

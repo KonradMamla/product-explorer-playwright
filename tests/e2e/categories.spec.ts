@@ -1,38 +1,26 @@
 import { test, expect } from '../../fixtures';
-import { API_ROUTES } from '../../helpers/api.routes';
+import { CATEGORIES } from '../../helpers/test-data';
+import { PATTERNS } from '../../helpers/patterns';
 
 test.describe('Category filtering', () => {
-  test('filters products by selected category @smoke', async ({ productListPage, page }) => {
-    const categoryResponse = page.waitForResponse(
-      (response) =>
-        response.url().includes(API_ROUTES.productsByCategory('smartphones')) &&
-        response.status() === 200,
-    );
+  test('filters products by selected category @smoke', async ({ productListPage }) => {
+    const body = await productListPage.selectCategoryAndWaitForResponse(CATEGORIES.SMARTPHONES);
 
-    await productListPage.selectCategory('smartphones');
-
-    const response = await categoryResponse;
-    const body = await response.json();
-
-    expect(body.products).toBeDefined();
-    expect(body.products.length).toBeGreaterThan(0);
-    body.products.forEach((product: { category: string }) => {
-      expect(product.category).toBe('smartphones');
+    expect(body.products).not.toHaveLength(0);
+    body.products.forEach((product) => {
+      expect(product.category).toBe(CATEGORIES.SMARTPHONES);
     });
 
-    await expect(page.getByTestId('results-summary')).toContainText('smartphones');
-    await expect(productListPage.productCards()).not.toHaveCount(0);
+    await expect(productListPage.resultsSummary).toContainText(CATEGORIES.SMARTPHONES);
+    await expect(productListPage.allProductCards()).not.toHaveCount(0);
   });
 
-  test('clears category filter and shows all products @smoke', async ({
-    productListPage,
-    page,
-  }) => {
-    await productListPage.selectCategory('smartphones');
+  test('clears category filter and shows all products @smoke', async ({ productListPage }) => {
+    await productListPage.selectCategory(CATEGORIES.SMARTPHONES);
     await productListPage.clearFilters();
 
-    await expect(page.getByTestId('results-summary')).not.toContainText('smartphones');
-    await expect(productListPage.productCards()).not.toHaveCount(0);
+    await expect(productListPage.resultsSummary).not.toContainText(CATEGORIES.SMARTPHONES);
+    await expect(productListPage.allProductCards()).not.toHaveCount(0);
   });
 
   test('opens product details from category results @regression', async ({
@@ -41,22 +29,18 @@ test.describe('Category filtering', () => {
     page,
   }) => {
     const detailsResponse = page.waitForResponse(
-      (response) => API_ROUTES.productById.test(response.url()) && response.status() === 200,
+      (response) => PATTERNS.PRODUCT_ENDPOINT.test(response.url()) && response.status() === 200,
     );
 
-    await productListPage.selectCategory('smartphones');
-    const firstCard = productListPage.productCards().first();
-    const productId = await firstCard
-      .getAttribute('data-testid')
-      .then((id) => Number(id?.replace('product-card-', '')));
-
+    await productListPage.selectCategory(CATEGORIES.SMARTPHONES);
+    const productId = await productListPage.getFirstProductId();
     await productListPage.showProductDetails(productId);
 
     const response = await detailsResponse;
     const body = await response.json();
 
-    expect(body.id).toBeDefined();
-    expect(body.category).toBe('smartphones');
+    expect(body.id).toBeGreaterThan(0);
+    expect(body.category).toBe(CATEGORIES.SMARTPHONES);
 
     await productModalPage.waitForLoaded();
     await expect(productModalPage.content).toBeVisible();

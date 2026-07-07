@@ -24,7 +24,12 @@ export function ProductDetailsModal({
       <div className="modal-content" role="dialog" aria-modal="true" aria-labelledby="modal-title">
         <div className="modal-header">
           <h2 id="modal-title">Product details</h2>
-          <button className="close-button" data-testid="close-details-modal" type="button" onClick={onClose}>
+          <button
+            className="close-button"
+            data-testid="close-details-modal"
+            type="button"
+            onClick={onClose}
+          >
             Close
           </button>
         </div>

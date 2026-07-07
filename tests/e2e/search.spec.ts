@@ -1,41 +1,31 @@
 import { test, expect } from '../../fixtures';
-import { API_ROUTES } from '../../helpers/api.routes';
+import { CATEGORIES, SEARCH_TERMS } from '../../helpers/test-data';
 
 test.describe('Product search', () => {
-  test('displays products matching search term @smoke', async ({ productListPage, page }) => {
-    const searchResponse = page.waitForResponse(
-      (response) => response.url().includes(API_ROUTES.productSearch) && response.status() === 200,
-    );
-
-    await productListPage.search('phone');
-
-    const response = await searchResponse;
-    const body = await response.json();
+  test('displays products matching search term @smoke', async ({ productListPage }) => {
+    const body = await productListPage.searchAndWaitForResponse(SEARCH_TERMS.PHONE);
 
     expect(body.products).toBeDefined();
     expect(body.products.length).toBeGreaterThan(0);
 
-    await expect(productListPage.productCards()).not.toHaveCount(0);
-    await expect(page.getByTestId('results-summary')).toContainText('phone');
+    await expect(productListPage.allProductCards()).not.toHaveCount(0);
+    await expect(productListPage.resultsSummary).toContainText(SEARCH_TERMS.PHONE);
   });
 
-  test('shows all products after clearing search @smoke', async ({ productListPage, page }) => {
-    await productListPage.search('phone');
+  test('shows all products after clearing search @smoke', async ({ productListPage }) => {
+    await productListPage.search(SEARCH_TERMS.PHONE);
     await productListPage.clearFilters();
 
-    await expect(page.getByTestId('results-summary')).not.toContainText('phone');
-    await expect(productListPage.productCards()).not.toHaveCount(0);
+    await expect(productListPage.resultsSummary).not.toContainText(SEARCH_TERMS.PHONE);
+    await expect(productListPage.allProductCards()).not.toHaveCount(0);
   });
 
-  test('combines search term with category filter @regression', async ({
-    productListPage,
-    page,
-  }) => {
-    await productListPage.search('phone');
-    await productListPage.selectCategory('smartphones');
+  test('combines search term with category filter @regression', async ({ productListPage }) => {
+    await productListPage.search(SEARCH_TERMS.PHONE);
+    await productListPage.selectCategory(CATEGORIES.SMARTPHONES);
 
-    await expect(page.getByTestId('results-summary')).toContainText('phone');
-    await expect(page.getByTestId('results-summary')).toContainText('smartphones');
-    await expect(productListPage.productCards()).not.toHaveCount(0);
+    await expect(productListPage.resultsSummary).toContainText(SEARCH_TERMS.PHONE);
+    await expect(productListPage.resultsSummary).toContainText(CATEGORIES.SMARTPHONES);
+    await expect(productListPage.allProductCards()).not.toHaveCount(0);
   });
 });

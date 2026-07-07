@@ -4,12 +4,12 @@ A comprehensive test suite for the **Product Explorer** React application, built
 
 ## Test coverage
 
-| Layer | What's tested |
-|---|---|
-| **E2E** | Search, category filtering, favorites persistence, multi-tab behavior |
-| **API** | DummyJSON endpoints — response schema, status codes, error handling |
-| **Component** | Isolated React component rendering and interaction |
-| **Visual regression** | UI consistency across code changes |
+| Layer                 | What's tested                                                         |
+| --------------------- | --------------------------------------------------------------------- |
+| **E2E**               | Search, category filtering, favorites persistence, multi-tab behavior |
+| **API**               | DummyJSON endpoints — response schema, status codes, error handling   |
+| **Component**         | Isolated React component rendering and interaction                    |
+| **Visual regression** | UI consistency across code changes                                    |
 
 ## Tech stack
 

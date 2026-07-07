@@ -1,4 +1,5 @@
 import { test, expect } from '../../fixtures';
+import { STORAGE_KEYS } from '../../helpers/constants';
 
 test.describe('Favourites', () => {
   test('adds product to favourites and updates counter @smoke', async ({ productListPage }) => {
@@ -8,7 +9,7 @@ test.describe('Favourites', () => {
     await test.step('Add product to favourites', () => productListPage.toggleFavourite(productId));
 
     await test.step('Verify counter and preview', async () => {
-      await expect(productListPage.favouritesCount).toContainText('1');
+      expect(await productListPage.getFavouritesCount()).toBe(1);
       await expect(productListPage.favouritesPreview).toBeVisible();
     });
   });
@@ -19,13 +20,13 @@ test.describe('Favourites', () => {
 
     await test.step('Add product to favourites', () => productListPage.toggleFavourite(productId));
 
-    await expect(productListPage.favouritesCount).toContainText('1');
+    expect(await productListPage.getFavouritesCount()).toBe(1);
 
     await test.step('Remove product from favourites', () =>
       productListPage.toggleFavourite(productId));
 
     await test.step('Verify counter reset and preview hidden', async () => {
-      await expect(productListPage.favouritesCount).toContainText('0');
+      expect(await productListPage.getFavouritesCount()).toBe(0);
       await expect(productListPage.favouritesPreview).toBeHidden();
     });
   });
@@ -36,7 +37,7 @@ test.describe('Favourites', () => {
 
     await test.step('Add product to favourites', () => productListPage.toggleFavourite(productId));
 
-    await expect(productListPage.favouritesCount).toContainText('1');
+    expect(await productListPage.getFavouritesCount()).toBe(1);
 
     await test.step('Reload page', async () => {
       await page.reload();
@@ -44,8 +45,8 @@ test.describe('Favourites', () => {
     });
 
     await test.step('Verify favourites persisted', async () => {
-      await expect(productListPage.favouritesCount).toContainText('1');
-      await expect(productListPage.productCards().first()).toBeVisible();
+      expect(await productListPage.getFavouritesCount()).toBe(1);
+      await expect(productListPage.allProductCards().first()).toBeVisible();
     });
   });
 
@@ -59,7 +60,10 @@ test.describe('Favourites', () => {
     await test.step('Add product to favourites', () => productListPage.toggleFavourite(productId));
 
     const parsed = await test.step('Read localStorage', async () => {
-      const stored = await page.evaluate(() => localStorage.getItem('product-explorer-favourites'));
+      const stored = await page.evaluate(
+        (key) => localStorage.getItem(key),
+        STORAGE_KEYS.FAVOURITES,
+      );
       return JSON.parse(stored ?? '[]') as number[];
     });
 

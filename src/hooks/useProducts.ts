@@ -27,7 +27,10 @@ function matchesSearchTerm(product: Product, searchTerm: string): boolean {
     .some((value) => value.toLowerCase().includes(normalizedSearch));
 }
 
-export function useProducts({ searchTerm, selectedCategory }: UseProductsOptions): UseProductsResult {
+export function useProducts({
+  searchTerm,
+  selectedCategory,
+}: UseProductsOptions): UseProductsResult {
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);

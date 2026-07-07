@@ -82,9 +82,9 @@ function App() {
           <p className="eyebrow">Recruitment task app</p>
           <h1>Product Explorer</h1>
           <p className="hero-copy">
-            Explore products, filter by category, inspect product details and save your
-            favourites. The application is complete on the frontend side and ready to be
-            covered with Cypress tests.
+            Explore products, filter by category, inspect product details and save your favourites.
+            The application is complete on the frontend side and ready to be covered with Cypress
+            tests.
           </p>
         </div>
         <div className="favourites-badge" data-testid="favourites-count">

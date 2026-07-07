@@ -23,12 +23,13 @@ export class ProductModalPage extends BasePage {
     await this.content.waitFor({ state: 'visible' });
   }
 
+  async waitForError(): Promise<void> {
+    await this.modal.waitFor({ state: 'visible' });
+    await this.errorState.waitFor({ state: 'visible' });
+  }
+
   async close(): Promise<void> {
     await this.closeButton.click();
     await this.modal.waitFor({ state: 'hidden' });
-  }
-
-  async isOpen(): Promise<boolean> {
-    return this.modal.isVisible();
   }
 }
