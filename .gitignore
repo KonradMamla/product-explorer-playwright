@@ -8,8 +8,8 @@ blob-report/
 playwright/.cache/
 
 # Visual regression snapshots (generated)
-tests/visual/*.png
 tests/visual/**/*.png
+tests/visual/*-snapshots/
 
 # Environment
 .env

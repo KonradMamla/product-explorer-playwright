@@ -92,7 +92,7 @@ function App() {
         </div>
       </header>
 
-      <section className="toolbar">
+      <section className="toolbar" data-testid="toolbar">
         <SearchBar value={searchTerm} onChange={setSearchTerm} />
         <CategoryFilter
           categories={categories}
