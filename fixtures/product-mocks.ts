@@ -1,4 +1,4 @@
-import type { ProductsResponse, Product } from '../src/types/product';
+import type { ProductsResponse, Product, ProductCategory } from '../src/types/product';
 
 export const MOCK_PRODUCTS: ProductsResponse = {
   products: [
@@ -56,3 +56,16 @@ export const MOCK_PRODUCT_DETAILS: Product = {
   thumbnail: 'https://cdn.dummyjson.com/product-images/1/thumbnail.jpg',
   images: ['https://cdn.dummyjson.com/product-images/1/1.jpg'],
 };
+
+export const MOCK_CATEGORIES: ProductCategory[] = [
+  {
+    slug: 'smartphones',
+    name: 'Smartphones',
+    url: 'https://dummyjson.com/products/category/smartphones',
+  },
+  {
+    slug: 'laptops',
+    name: 'Laptops',
+    url: 'https://dummyjson.com/products/category/laptops',
+  },
+];
