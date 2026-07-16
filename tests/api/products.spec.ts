@@ -3,7 +3,7 @@ import type { Product, ProductsResponse, ProductPreview } from '../../src/types/
 import { API_ROUTES } from '../../helpers/api.routes';
 import { SEARCH_TERMS, PRODUCT_IDS } from '../../helpers/test-data';
 import { API_PARAMS } from '../../helpers/constants';
-import { PATTERNS } from '../../helpers/patterns';
+import { assertValidProduct } from '../../helpers/assertions';
 
 test.describe('Products API', () => {
   test('returns product list with correct schema @smoke', async ({ apiContext }) => {
@@ -19,11 +19,7 @@ test.describe('Products API', () => {
     expect(body.limit).toBeGreaterThan(0);
 
     const firstProduct: ProductPreview = body.products[0];
-    expect(firstProduct.id).toBeGreaterThan(0);
-    expect(firstProduct.title).toBeTruthy();
-    expect(firstProduct.price).toBeGreaterThan(0);
-    expect(firstProduct.category).toBeTruthy();
-    expect(firstProduct.thumbnail).toMatch(PATTERNS.URL);
+    assertValidProduct(firstProduct);
   });
 
   test('returns matching products for search query @smoke', async ({ apiContext }) => {
@@ -56,11 +52,7 @@ test.describe('Products API', () => {
     const body: Product = await response.json();
 
     expect(body.id).toBe(PRODUCT_IDS.VALID);
-    expect(body.title).toBeTruthy();
-    expect(body.price).toBeGreaterThan(0);
-    expect(body.rating).toBeGreaterThan(0);
-    expect(body.stock).toBeGreaterThanOrEqual(0);
-    expect(body.thumbnail).toMatch(PATTERNS.URL);
+    assertValidProduct(body);
   });
 
   test('returns 404 for non-existent product @regression', async ({ apiContext }) => {

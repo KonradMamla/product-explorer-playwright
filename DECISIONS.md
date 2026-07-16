@@ -43,3 +43,14 @@ On CI, infrastructure flakiness (network latency, cold container startup) can ca
 ## 7. `workers: '50%'` locally, `workers: 1` on CI
 
 Running tests in parallel locally speeds up feedback loops without overloading the machine. On CI, a single worker ensures predictable resource usage in containerized environments where CPU allocation is limited and shared.
+
+## 8. Planned: multi-user context isolation test
+
+A future test will demonstrate BrowserContext isolation by simulating two
+simultaneous users. User A adds a product to favourites in their context —
+User B in a separate context sees no favourites, proving that localStorage
+is fully isolated between BrowserContexts.
+
+This showcases one of Playwright's key advantages: cheap, fast context
+creation that provides complete browser state isolation without restarting
+the browser.

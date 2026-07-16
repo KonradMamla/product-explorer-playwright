@@ -1,6 +1,6 @@
 export const API_ROUTES = {
   products: '/products',
   productSearch: '/products/search',
-  productsByCategory: (slug: string) => `/products/category/${slug}`,
+  productsByCategory: (category: string) => `/products/category/${category}`,
   categories: '/products/categories',
 };
