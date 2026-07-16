@@ -44,6 +44,8 @@ On CI, infrastructure flakiness (network latency, cold container startup) can ca
 
 Running tests in parallel locally speeds up feedback loops without overloading the machine. On CI, a single worker ensures predictable resource usage in containerized environments where CPU allocation is limited and shared.
 
+---
+
 ## 8. Planned: multi-user context isolation test
 
 A future test will demonstrate BrowserContext isolation by simulating two
@@ -54,3 +56,16 @@ is fully isolated between BrowserContexts.
 This showcases one of Playwright's key advantages: cheap, fast context
 creation that provides complete browser state isolation without restarting
 the browser.
+
+---
+
+## 9. Known issue: response time test skipped for external API
+
+The response time assertion for the DummyJSON categories endpoint is
+intentionally skipped. External API latency depends on network conditions,
+server load, and geographic location — all outside this project's control.
+The test is preserved in the codebase as documentation of the intent, but
+marked with `test.skip()` to prevent flaky CI runs.
+
+Response time testing belongs in dedicated performance testing suites
+(e.g. k6, JMeter) targeting APIs under the team's control.

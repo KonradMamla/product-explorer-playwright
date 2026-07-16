@@ -45,7 +45,7 @@ test.describe('Products API', () => {
   });
 
   test('returns single product with correct schema @smoke', async ({ apiContext }) => {
-    const response = await apiContext.get(`${API_ROUTES.products}/${PRODUCT_IDS.VALID}`);
+    const response = await apiContext.get(API_ROUTES.productById(PRODUCT_IDS.VALID));
 
     expect(response.status()).toBe(200);
 
@@ -56,7 +56,7 @@ test.describe('Products API', () => {
   });
 
   test('returns 404 for non-existent product @regression', async ({ apiContext }) => {
-    const response = await apiContext.get(`${API_ROUTES.products}/${PRODUCT_IDS.NONEXISTENT}`);
+    const response = await apiContext.get(API_ROUTES.productById(PRODUCT_IDS.NONEXISTENT));
 
     expect(response.status()).toBe(404);
   });

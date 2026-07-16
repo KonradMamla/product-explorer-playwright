@@ -7,7 +7,6 @@ export const CATEGORIES = {
 
 export const SEARCH_TERMS = {
   PHONE: 'phone',
-  PERFUME: 'perfume',
   NO_RESULTS: 'xqzwbytnmpfkl',
 } as const;
 
