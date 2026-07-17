@@ -55,4 +55,35 @@ test.describe('Multi-tab behaviour', () => {
       expect(await tab2.getFavouritesCount()).toBe(0);
     });
   });
+
+  test('two users in separate contexts have isolated favourites @regression', async ({
+    productListPage,
+    browser,
+  }) => {
+    const productId = await test.step('Get first product id', () =>
+      productListPage.getFirstProductId());
+
+    await test.step('User A adds product to favourites', () =>
+      productListPage.toggleFavourite(productId));
+
+    await test.step('Verify User A sees 1 favourite', async () => {
+      await expect(productListPage.favouritesCount).toContainText('1');
+    });
+
+    const userBContext = await test.step('Open separate browser context for User B', () =>
+      browser.newContext());
+
+    const userBPage = await test.step('User B opens application', async () => {
+      const page = await userBContext.newPage();
+      await page.goto('/');
+      return new ProductListPage(page);
+    });
+
+    await test.step('Verify User B sees 0 favourites', async () => {
+      await userBPage.waitForProductsLoaded();
+      await expect(userBPage.favouritesCount).toContainText('0');
+    });
+
+    await userBContext.close();
+  });
 });
