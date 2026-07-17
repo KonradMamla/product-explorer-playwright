@@ -5,22 +5,75 @@ on:
     branches: [main]
   pull_request:
     branches: [main]
+  schedule:
+    - cron: '0 2 * * *'
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  CI: true
 
 jobs:
-  test:
+  smoke:
+    name: Smoke Tests
     runs-on: ubuntu-latest
-    timeout-minutes: 60
+    timeout-minutes: 15
+    if: github.event_name == 'push'
 
     steps:
       - uses: actions/checkout@v4
 
       - uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: 24
           cache: 'npm'
 
       - name: Install dependencies
         run: npm ci
+
+      - name: Cache Playwright browsers
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/ms-playwright
+          key: playwright-chromium-${{ hashFiles('package-lock.json') }}
+
+      - name: Install Playwright browsers
+        run: npx playwright install --with-deps chromium
+
+      - name: Run smoke tests
+        run: npx playwright test tests/e2e/ tests/api/ --grep @smoke --project=chromium
+
+      - uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: smoke-report
+          path: playwright-report/
+          retention-days: 7
+
+  regression:
+    name: Regression Tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    if: github.event_name == 'pull_request' || github.event_name == 'schedule'
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Cache Playwright browsers
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/ms-playwright
+          key: playwright-all-${{ hashFiles('package-lock.json') }}
 
       - name: Install Playwright browsers
         run: npx playwright install --with-deps
@@ -28,12 +81,60 @@ jobs:
       - name: Run E2E and API tests
         run: npx playwright test tests/e2e/ tests/api/
 
+      - uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: regression-report
+          path: playwright-report/
+          retention-days: 30
+
+  component:
+    name: Component Tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    if: github.event_name == 'pull_request' || github.event_name == 'schedule'
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Cache Playwright browsers
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/ms-playwright
+          key: playwright-ct-${{ hashFiles('package-lock.json') }}
+
+      - name: Install Playwright browsers
+        run: npx playwright install --with-deps chromium firefox webkit
+
       - name: Run component tests
         run: npm run test:component
 
       - uses: actions/upload-artifact@v4
         if: failure()
         with:
-          name: playwright-report
-          path: playwright-report/
+          name: component-report
+          path: playwright-ct-report/
           retention-days: 30
+
+      - name: Send email on failure
+        if: failure() && github.event_name == 'schedule'
+        uses: dawidd6/action-send-mail@v3
+        with:
+          server_address: smtp.gmail.com
+          server_port: 465
+          username: ${{ secrets.MAIL_USERNAME }}
+          password: ${{ secrets.MAIL_PASSWORD }}
+          subject: 'Nightly regression failed — product-explorer-playwright'
+          to: ${{ secrets.MAIL_USERNAME }}
+          from: ${{ secrets.MAIL_USERNAME }}
+          body: |
+            Nightly regression run failed.
+            Check the details: https://github.com/KonradMamla/product-explorer-playwright/actions
