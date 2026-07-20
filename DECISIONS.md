@@ -46,9 +46,9 @@ Running tests in parallel locally speeds up feedback loops without overloading t
 
 ---
 
-## 8. Planned: multi-user context isolation test
+## 8. Multi-user context isolation test
 
-A future test will demonstrate BrowserContext isolation by simulating two
+A dedicated test demonstrates BrowserContext isolation by simulating two
 simultaneous users. User A adds a product to favourites in their context —
 User B in a separate context sees no favourites, proving that localStorage
 is fully isolated between BrowserContexts.
@@ -69,3 +69,27 @@ marked with `test.skip()` to prevent flaky CI runs.
 
 Response time testing belongs in dedicated performance testing suites
 (e.g. k6, JMeter) targeting APIs under the team's control.
+
+---
+
+## 10. Named route handlers for `page.unroute()`
+
+Route handlers are extracted to named variables when used with `page.unroute()`. Anonymous arrow functions create new references each time — `page.unroute()` requires the exact same function reference to remove the correct handler. This pattern was necessary because React.StrictMode dispatches duplicate requests in development, making counter-based mock logic unreliable.
+
+---
+
+## 11. TypeScript utility types for API assertions
+
+`Pick<Product, 'id' | 'title' | 'price'>` is used instead of anonymous object types in API test assertions. This creates an explicit link between test assertions and the application's domain types — if a field is renamed in `Product`, TypeScript immediately surfaces all affected assertions.
+
+---
+
+## 12. Separation of test data and technical constants
+
+Test data (`test-data.ts`) holds business domain values — category slugs, search terms, product IDs. Technical constants (`constants.ts`) holds infrastructure values — storage keys, testId prefixes, route patterns, base URLs.
+
+---
+
+## 13. Two-tier CI pipeline: smoke on push, full regression on schedule and PR
+
+Smoke tests run on every push to `main` for fast feedback (Chromium only, `@smoke` tag, ~2 minutes). The full test suite (E2E, API, component) runs on pull requests and nightly via cron schedule, since exhaustive multi-browser coverage is too slow for per-push feedback but necessary before merging or as a daily health check.
