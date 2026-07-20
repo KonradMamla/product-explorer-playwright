@@ -7,11 +7,11 @@ A comprehensive test suite for the **Product Explorer** React application, built
 ## Test coverage
 
 | Layer                 | What's tested                                                                                                         |
-| --------------------- | --------------------------------------------------------------------------------------------------------------------- | --- |
+| --------------------- | --------------------------------------------------------------------------------------------------------------------- |
 | **E2E**               | Search, category filtering, favorites persistence, multi-tab & multi-user isolation, error handling (network mocking) |
 | **API**               | DummyJSON endpoints — response schema, status codes, error handling                                                   |
 | **Component**         | Isolated React component rendering and interaction (SearchBar, CategoryFilter, ProductCard)                           |
-| **Visual regression** | UI consistency across code changes, using mocked deterministic data                                                   |     |
+| **Visual regression** | UI consistency across code changes, using mocked deterministic data                                                   |
 
 ## Tech stack
 
@@ -22,9 +22,7 @@ A comprehensive test suite for the **Product Explorer** React application, built
 
 ## Project structure
 
-## Project structure
-
-\`\`\`
+```
 tests/
 ├── e2e/ # Full browser UI flows
 │ ├── search.spec.ts
@@ -60,7 +58,7 @@ helpers/ # Shared utilities
 
 .github/workflows/
 └── playwright.yml # CI pipeline: smoke on push, regression on PR/nightly
-\`\`\`
+```
 
 ## Running tests
 
@@ -113,9 +111,9 @@ The pipeline runs three jobs depending on the trigger:
 
 Update visual regression baselines locally before committing:
 
-\`\`\`bash
+```bash
 npx playwright test tests/visual/ --update-snapshots
-\`\`\`
+```
 
 ## Key Playwright features demonstrated
 
