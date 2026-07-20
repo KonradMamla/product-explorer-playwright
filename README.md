@@ -1,5 +1,7 @@
 # Product Explorer — Playwright Test Suite
 
+[![Playwright Tests](https://github.com/KonradMamla/product-explorer-playwright/actions/workflows/playwright.yml/badge.svg)](https://github.com/KonradMamla/product-explorer-playwright/actions/workflows/playwright.yml)
+
 A comprehensive test suite for the **Product Explorer** React application, built to demonstrate real-world Playwright usage across multiple testing layers.
 
 ## Test coverage
