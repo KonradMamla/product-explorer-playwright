@@ -38,6 +38,8 @@ jobs:
         with:
           path: ~/.cache/ms-playwright
           key: playwright-chromium-${{ hashFiles('package-lock.json') }}
+          restore-keys: |
+            playwright-chromium-
 
       - name: Install Playwright browsers
         run: npx playwright install --with-deps chromium
@@ -74,6 +76,8 @@ jobs:
         with:
           path: ~/.cache/ms-playwright
           key: playwright-all-${{ hashFiles('package-lock.json') }}
+          restore-keys: |
+            playwright-all-
 
       - name: Install Playwright browsers
         run: npx playwright install --with-deps
@@ -87,6 +91,21 @@ jobs:
           name: regression-report
           path: playwright-report/
           retention-days: 30
+
+      - name: Send email on failure
+        if: failure() && github.event_name == 'schedule'
+        uses: dawidd6/action-send-mail@v3
+        with:
+          server_address: smtp.gmail.com
+          server_port: 465
+          username: ${{ secrets.MAIL_USERNAME }}
+          password: ${{ secrets.MAIL_PASSWORD }}
+          subject: 'Nightly regression failed — product-explorer-playwright'
+          to: ${{ secrets.MAIL_USERNAME }}
+          from: ${{ secrets.MAIL_USERNAME }}
+          body: |
+            Nightly regression run failed.
+            Check the details: https://github.com/KonradMamla/product-explorer-playwright/actions
 
   component:
     name: Component Tests
@@ -110,6 +129,8 @@ jobs:
         with:
           path: ~/.cache/ms-playwright
           key: playwright-ct-${{ hashFiles('package-lock.json') }}
+          restore-keys: |
+            playwright-ct-
 
       - name: Install Playwright browsers
         run: npx playwright install --with-deps chromium firefox webkit
@@ -123,18 +144,3 @@ jobs:
           name: component-report
           path: playwright-ct-report/
           retention-days: 30
-
-      - name: Send email on failure
-        if: failure() && github.event_name == 'schedule'
-        uses: dawidd6/action-send-mail@v3
-        with:
-          server_address: smtp.gmail.com
-          server_port: 465
-          username: ${{ secrets.MAIL_USERNAME }}
-          password: ${{ secrets.MAIL_PASSWORD }}
-          subject: 'Nightly regression failed — product-explorer-playwright'
-          to: ${{ secrets.MAIL_USERNAME }}
-          from: ${{ secrets.MAIL_USERNAME }}
-          body: |
-            Nightly regression run failed.
-            Check the details: https://github.com/KonradMamla/product-explorer-playwright/actions
