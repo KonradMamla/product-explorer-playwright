@@ -23,6 +23,7 @@
     "pages",
     "fixtures",
     "helpers",
+    "scripts",
     "playwright.config.ts",
     "playwright-ct.config.ts",
     "eslint.config.js"
