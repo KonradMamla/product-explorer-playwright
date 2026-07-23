@@ -6,6 +6,7 @@ playwright-report/
 test-results/
 blob-report/
 playwright/.cache/
+playwright-ct-report/
 
 # Visual regression snapshots (generated)
 tests/visual/**/*.png
