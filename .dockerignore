@@ -1,0 +1,6 @@
+node_modules
+test-results
+playwright-report
+playwright-ct-report
+.git
+tests/visual/**/*.png

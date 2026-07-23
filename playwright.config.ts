@@ -1,5 +1,7 @@
 import { defineConfig, devices } from '@playwright/test';
 
+console.log('CI env:', process.env.CI, '| workers:', process.env.CI ? 1 : '50%');
+
 export default defineConfig({
   testDir: './tests',
   fullyParallel: true,
