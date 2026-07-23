@@ -55,10 +55,15 @@ jobs:
           retention-days: 7
 
   regression:
-    name: Regression Tests
+    name: Regression Tests (shard ${{ matrix.shardIndex }}/${{ matrix.shardTotal }})
     runs-on: ubuntu-latest
-    timeout-minutes: 60
+    timeout-minutes: 30
     if: github.event_name == 'pull_request' || github.event_name == 'schedule'
+    strategy:
+      fail-fast: false
+      matrix:
+        shardIndex: [1, 2, 3]
+        shardTotal: [3]
 
     steps:
       - uses: actions/checkout@v4
@@ -82,13 +87,13 @@ jobs:
       - name: Install Playwright browsers
         run: npx playwright install --with-deps
 
-      - name: Run E2E and API tests
-        run: npx playwright test tests/e2e/ tests/api/
+      - name: Run E2E and API tests (shard)
+        run: npx playwright test tests/e2e/ tests/api/ --shard=${{ matrix.shardIndex }}/${{ matrix.shardTotal }}
 
       - uses: actions/upload-artifact@v4
         if: failure()
         with:
-          name: regression-report
+          name: regression-report-shard-${{ matrix.shardIndex }}
           path: playwright-report/
           retention-days: 30
 
@@ -100,11 +105,11 @@ jobs:
           server_port: 465
           username: ${{ secrets.MAIL_USERNAME }}
           password: ${{ secrets.MAIL_PASSWORD }}
-          subject: 'Nightly regression failed — product-explorer-playwright'
+          subject: 'Nightly regression failed (shard ${{ matrix.shardIndex }}) — product-explorer-playwright'
           to: ${{ secrets.MAIL_USERNAME }}
           from: ${{ secrets.MAIL_USERNAME }}
           body: |
-            Nightly regression run failed.
+            Nightly regression run failed on shard ${{ matrix.shardIndex }}/${{ matrix.shardTotal }}.
             Check the details: https://github.com/KonradMamla/product-explorer-playwright/actions
 
   component:
