@@ -93,3 +93,39 @@ Test data (`test-data.ts`) holds business domain values — category slugs, sear
 ## 13. Two-tier CI pipeline: smoke on push, full regression on schedule and PR
 
 Smoke tests run on every push to `main` for fast feedback (Chromium only, `@smoke` tag, ~2 minutes). The full test suite (E2E, API, component) runs on pull requests and nightly via cron schedule, since exhaustive multi-browser coverage is too slow for per-push feedback but necessary before merging or as a daily health check.
+
+---
+
+## 14. Zod schema validation alongside manual assertions
+
+Zod schema validation (`helpers/schemas/`) is used in dedicated tests as a complementary approach to the manual custom assertions (`helpers/assertions.ts`), not a replacement. Manual assertions give precise, field-by-field failure messages during debugging. Zod validates the entire response shape declaratively in one call and reports all schema violations at once — useful for catching unexpected structural drift in the API response. Keeping both demonstrates two valid, complementary approaches to API contract testing.
+
+---
+
+## 15. Contract testing with JSON Schema and Ajv
+
+A formal, versioned API contract (`contracts/products-api.contract.json`) is generated from the Zod schema via `z.toJSONSchema()` and validated against live API responses using Ajv — a dedicated JSON Schema validator, independent of any TypeScript-specific library. This is a conceptually different layer from in-code Zod validation: the contract is a portable, technology-agnostic artifact that any team or tool could read, not just something living inside this codebase.
+
+The schema intentionally uses `.loose()` (not strict `additionalProperties: false`). DummyJSON returns fields not covered by the contract (e.g. `discountPercentage`) — a strict contract would fail on any additive, backward-compatible API change. Consumer-driven contracts should assert only the fields the consumer actually relies on, not reject unknown fields from a third-party API outside the team's control.
+
+---
+
+## 16. Accessibility testing with axe-core
+
+`@axe-core/playwright` is used to automatically scan rendered pages against WCAG rules (missing alt text, color contrast, form labeling, heading hierarchy, etc.). Automated accessibility scanning catches roughly 30–40% of possible WCAG violations — it is a valuable first pass, not a replacement for manual testing with real assistive technology. Tests use `.include()` to scope scans to specific components (e.g. the product details modal) for precise failure localization.
+
+---
+
+## 17. Docker for local/CI environment parity
+
+A `Dockerfile` based on the official `mcr.microsoft.com/playwright` image (matching the exact `@playwright/test` version) allows running the full suite in a Linux environment identical to GitHub Actions runners, without waiting for CI feedback. This surfaced a real, reproducible flaky test (`multi-tab.spec.ts` on mobile-safari under `workers: 1`) that was otherwise only theoretical.
+
+The container does not automatically behave like CI — `process.env.CI` must be explicitly passed via `docker run -e CI=true` to get `workers: 1` / `retries: 2`. Without it, the container uses the same `workers: '50%'` as local development, which is appropriate for a quick "does this work on Linux" check but does not faithfully reproduce pipeline conditions.
+
+Visual regression tests are excluded from the Docker `CMD` for the same reason they're excluded from CI: no Linux baseline snapshots exist in the repository (see decision #5).
+
+---
+
+## 18. Sharded regression job for parallel CI execution
+
+The `regression` job in `playwright.yml` uses a GitHub Actions matrix (`shardIndex`/`shardTotal`) combined with Playwright's `--shard` flag to split the full E2E/API suite across three independent runners executing in parallel, each still running with `workers: 1` for predictability. This demonstrates the standard approach to scaling CI test execution time in larger suites: horizontal parallelism across machines, rather than increasing worker concurrency on a single resource-constrained runner (which risks the instability described in decision #7). `fail-fast: false` ensures all shards report their results independently even if one fails.
