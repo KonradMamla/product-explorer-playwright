@@ -24,7 +24,10 @@
     "fixtures",
     "helpers",
     "scripts",
+    "features",
+    "steps",
     "playwright.config.ts",
+    "playwright.config.bdd.ts",
     "playwright-ct.config.ts",
     "eslint.config.js"
   ]

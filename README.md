@@ -56,6 +56,14 @@ helpers/ # Shared utilities
 ├── test-data.ts # Business test data
 └── assertions.ts # Reusable custom assertions
 
+features/ # Gherkin scenarios (BDD demo)
+└── search.feature
+
+steps/ # Step definitions translating Gherkin to Playwright actions
+└── search.steps.ts
+
+playwright.config.bdd.ts # Separate config for the BDD test runner
+
 .github/workflows/
 └── playwright.yml # CI pipeline: smoke on push, regression on PR/nightly
 ```
@@ -91,6 +99,12 @@ Run with UI mode (recommended for local development):
 
 ```bash
 npx playwright test --ui
+```
+
+Run BDD scenarios (Gherkin + Playwright):
+
+```bash
+npm run test:bdd
 ```
 
 Open HTML report after test run:
