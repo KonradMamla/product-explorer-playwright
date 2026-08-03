@@ -66,6 +66,10 @@ playwright.config.bdd.ts # Separate config for the BDD test runner
 
 .github/workflows/
 └── playwright.yml # CI pipeline: smoke on push, regression on PR/nightly
+
+azure-pipelines.yml         # Equivalent CI/CD pipeline in Azure DevOps syntax (not connected to a live org)
+templates/
+└── regression-steps.yml    # Shared steps template for sharded regression jobs
 ```
 
 ## Running tests

@@ -142,3 +142,11 @@ Two practical constraints shaped the implementation:
 - BDD data (e.g. the search term `"phone"`) intentionally lives in the `.feature` file as plain text, not behind a named constant like `SEARCH_TERMS.PHONE`. This is a deliberate departure from the project's usual "no magic strings" rule — in Gherkin, the literal value _is_ the documentation, meant to be readable by non-technical stakeholders.
 
 In a production setting, BDD would only be introduced where business/QA/PO collaboration on scenario wording provides real value — not applied uniformly across a suite already served well by descriptive `test()` names and `test.step()`.
+
+---
+
+## 20. Azure Pipelines config as a portable CI/CD artifact
+
+`azure-pipelines.yml` mirrors the logic of the GitHub Actions pipeline (smoke/regression/component stages, sharded regression, browser caching, failure artifacts) using Azure DevOps' own syntax and concepts (stages, `task`/`script` steps, `Build.Reason` conditions instead of `github.event_name`).
+
+This file is not connected to a live Azure DevOps organization and does not execute automatically — it exists to demonstrate the ability to translate the same CI/CD design between different pipeline engines, a common requirement when a team's tooling doesn't match a candidate's prior experience. The underlying concepts (staged execution, conditional jobs, dependency caching, artifact publishing on failure) are the same as in `playwright.yml`; only the platform-specific syntax differs.
